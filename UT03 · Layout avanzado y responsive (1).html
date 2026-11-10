@@ -1,0 +1,1643 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>UT03 · Layout avanzado y responsive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sora:wght@600;700&display=swap">
+
+<style>
+/* ─── TOKENS ────────────────────────────────────────────────
+   Layout: sidebar fija (desktop) + contenido central con scroll
+   Paleta técnica: azul pizarra oscuro + amarillo ámbar como acento
+   Body: Inter · Display: Sora · Código: JetBrains Mono
+─────────────────────────────────────────────────────────── */
+:root {
+  --bg:        #f7f8fa;
+  --bg-card:   #ffffff;
+  --bg-code:   #1e2230;
+  --fg:        #1a1d2e;
+  --fg-soft:   #5a6070;
+  --fg-muted:  #9099aa;
+  --accent:    #e09a1a;
+  --accent-bg: #fdf3dc;
+  --accent-fg: #7a4f00;
+  --border:    #e2e5ec;
+  --tag-css:   #d6e8ff;
+  --tag-css-fg:#1a4a8a;
+  --tag-tip:   #d6f5e8;
+  --tag-tip-fg:#0d5c38;
+  --tag-warn:  #fce8d6;
+  --tag-warn-fg:#7a3010;
+  --sidebar-w: 260px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #131620;
+    --bg-card:   #1c1f2e;
+    --bg-code:   #0d0f18;
+    --fg:        #e8ebf4;
+    --fg-soft:   #9099aa;
+    --fg-muted:  #5a6070;
+    --accent:    #f0ab28;
+    --accent-bg: #2a2000;
+    --accent-fg: #f0ab28;
+    --border:    #2a2d3e;
+    --tag-css:   #0d2a50;
+    --tag-css-fg:#7ab8ff;
+    --tag-tip:   #0a2e1e;
+    --tag-tip-fg:#5de0a0;
+    --tag-warn:  #2e1500;
+    --tag-warn-fg:#f0a06a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:        #131620;
+  --bg-card:   #1c1f2e;
+  --bg-code:   #0d0f18;
+  --fg:        #e8ebf4;
+  --fg-soft:   #9099aa;
+  --fg-muted:  #5a6070;
+  --accent:    #f0ab28;
+  --accent-bg: #2a2000;
+  --accent-fg: #f0ab28;
+  --border:    #2a2d3e;
+  --tag-css:   #0d2a50;
+  --tag-css-fg:#7ab8ff;
+  --tag-tip:   #0a2e1e;
+  --tag-tip-fg:#5de0a0;
+  --tag-warn:  #2e1500;
+  --tag-warn-fg:#f0a06a;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  background: var(--bg);
+  color: var(--fg);
+  display: flex;
+  min-height: 100%;
+}
+
+/* ─── SIDEBAR ─────────────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-w);
+  height: 100dvh;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform .25s ease;
+}
+.sidebar-header {
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 1;
+}
+.sidebar-header .unit-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.sidebar-header h1 {
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fg);
+  margin: 0;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 10px 0 24px;
+}
+.nav-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  padding: 14px 20px 4px;
+}
+.nav-list a {
+  display: block;
+  padding: 6px 20px;
+  font-size: 13px;
+  color: var(--fg-soft);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+  line-height: 1.4;
+}
+.nav-list a:hover,
+.nav-list a.active {
+  color: var(--fg);
+  border-left-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* ─── TOGGLE MOBILE ───────────────────────────────────────── */
+.menu-btn {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 200;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  color: var(--fg);
+  font-size: 18px;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 90;
+}
+
+/* ─── CONTENIDO PRINCIPAL ─────────────────────────────────── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-width: 0;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 60px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+}
+.content-inner {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 48px 0 0;
+}
+
+/* ─── SECCIONES ───────────────────────────────────────────── */
+.section {
+  margin-bottom: 64px;
+  scroll-margin-top: 24px;
+}
+.section-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.section h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--fg);
+  margin: 0 0 6px;
+  text-wrap: balance;
+}
+.section-subtitle {
+  color: var(--fg-soft);
+  font-size: 14px;
+  margin: 0 0 24px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+}
+.subsection {
+  margin: 32px 0;
+}
+.subsection h3 {
+  font-family: 'Sora', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--fg);
+  margin: 0 0 12px;
+}
+.subsection h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-soft);
+  margin: 20px 0 8px;
+  letter-spacing: .02em;
+}
+
+p { margin: 0 0 14px; color: var(--fg-soft); }
+p:last-child { margin-bottom: 0; }
+strong { color: var(--fg); font-weight: 600; }
+
+/* ─── BLOQUES DE CÓDIGO ───────────────────────────────────── */
+.code-block {
+  background: var(--bg-code);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 16px 0;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.code-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #7a8099;
+  padding: 8px 16px 6px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  letter-spacing: .06em;
+}
+.code-block pre {
+  margin: 0;
+  padding: 14px 16px 16px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #c8d0e8;
+}
+/* Syntax colors */
+.k  { color: #e07aff; }   /* keyword/property */
+.v  { color: #79d4a5; }   /* value */
+.n  { color: #7ab8ff; }   /* selector/name */
+.c  { color: #5a6688; font-style: italic; }  /* comment */
+.u  { color: #f0ab28; }   /* unit/important */
+.s  { color: #f0c070; }   /* string */
+
+/* ─── CALLOUTS ────────────────────────────────────────────── */
+.callout {
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 16px 0;
+  font-size: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.callout-body { min-width: 0; color: var(--fg); }
+.callout-body strong { display: block; margin-bottom: 2px; }
+.callout.tip  { background: var(--tag-tip);  color: var(--tag-tip-fg); }
+.callout.warn { background: var(--tag-warn); color: var(--tag-warn-fg); }
+.callout.info { background: var(--tag-css);  color: var(--tag-css-fg); }
+.callout .callout-body { color: inherit; }
+
+/* ─── TABLA DE PROPIEDADES ────────────────────────────────── */
+.prop-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  margin: 16px 0;
+}
+.prop-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  font-weight: 500;
+  text-align: left;
+  padding: 6px 12px 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.prop-table td {
+  padding: 9px 12px 9px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--fg-soft);
+}
+.prop-table td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: var(--fg);
+  white-space: nowrap;
+}
+.prop-table tr:last-child td { border-bottom: none; }
+
+/* ─── COMPARATIVA FLEX VS GRID ───────────────────────────── */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+.compare-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.compare-card h4 {
+  font-family: 'Sora', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  color: var(--fg);
+}
+.compare-card ul {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--fg-soft);
+  font-size: 13px;
+}
+.compare-card ul li { margin-bottom: 4px; }
+
+/* ─── DIAGRAMA VISUAL (ASCII ART) ────────────────────────── */
+.diagram {
+  background: var(--bg-code);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #c8d0e8;
+  margin: 16px 0;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+/* ─── TAG INLINE ──────────────────────────────────────────── */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  background: var(--accent-bg);
+  color: var(--accent-fg);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.code-block code,
+.code-block pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+/* ─── PILL BADGE ──────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+.badge.new    { background: var(--tag-tip);  color: var(--tag-tip-fg); }
+.badge.clave  { background: var(--tag-css);  color: var(--tag-css-fg); }
+.badge.dificil{ background: var(--tag-warn); color: var(--tag-warn-fg); }
+
+/* ─── REGLA PROFESIONAL ───────────────────────────────────── */
+.pro-rule {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-bg);
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin: 16px 0;
+  font-size: 14px;
+  color: var(--accent-fg);
+}
+.pro-rule strong { color: inherit; }
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .menu-btn { display: block; }
+  .sidebar  { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main { margin-left: 0; padding-top: 60px; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .content-inner { padding-top: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar, .nav-list a { transition: none; }
+}
+</style>
+
+<button class="menu-btn" id="menuBtn" aria-label="Abrir menú">☰</button>
+<div class="sidebar-overlay" id="overlay"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="unit-label">UT03 · DIW 2º DAW</div>
+    <h1>Layout avanzado y diseño responsive</h1>
+  </div>
+  <ul class="nav-list">
+    <li class="nav-section-label">Flexbox avanzado</li>
+    <li><a href="#flex-modelo">El modelo flex a fondo</a></li>
+    <li><a href="#flex-shorthand">La shorthand flex</a></li>
+    <li><a href="#flex-alineacion">align-self y order</a></li>
+    <li><a href="#flex-anidado">Flexbox anidado</a></li>
+    <li><a href="#align-content">align-content vs align-items</a></li>
+
+    <li class="nav-section-label">Position</li>
+    <li><a href="#position-contexto">Contextos de posicionamiento</a></li>
+    <li><a href="#position-fixed">fixed y z-index</a></li>
+    <li><a href="#position-sticky">sticky</a></li>
+    <li><a href="#position-absolute">absolute para superposiciones</a></li>
+
+    <li class="nav-section-label">Grid avanzado</li>
+    <li><a href="#grid-areas">grid-template-areas</a></li>
+    <li><a href="#grid-implicito">Grid implícito</a></li>
+    <li><a href="#grid-lineas">Colocación con líneas</a></li>
+    <li><a href="#grid-place">place-items y place-content</a></li>
+    <li><a href="#autofill-autofit">auto-fill vs auto-fit</a></li>
+
+    <li class="nav-section-label">Responsive</li>
+    <li><a href="#mobile-first">Mobile-first</a></li>
+    <li><a href="#media-queries">Media queries</a></li>
+    <li><a href="#intrinseco">Layouts intrínsecos</a></li>
+    <li><a href="#clamp">clamp() y fluid type</a></li>
+    <li><a href="#flex-grid-combinados">Flex + Grid combinados</a></li>
+
+    <li class="nav-section-label">Componentes difíciles</li>
+    <li><a href="#form-layout">Formulario responsive</a></li>
+    <li><a href="#form-controles">Controles personalizados</a></li>
+    <li><a href="#tabla-scroll">Tabla: scroll horizontal</a></li>
+    <li><a href="#tabla-colapso">Tabla: colapso a lista</a></li>
+  </ul>
+</nav>
+
+<main class="main">
+<div class="content-inner">
+
+<!-- ═══════════════════════════════════════════════════════════
+     BLOQUE 1 · FLEXBOX AVANZADO
+═══════════════════════════════════════════════════════════ -->
+
+<section class="section" id="flex-modelo">
+  <div class="section-eyebrow">Flexbox avanzado · 01</div>
+  <h2>El modelo flex a fondo</h2>
+  <p class="section-subtitle">En UT02 usaste <code>justify-content</code>, <code>align-items</code> y <code>gap</code>. Ahora entiendes cómo los hijos se distribuyen realmente el espacio.</p>
+
+  <div class="subsection">
+    <h3>¿Cómo reparte el espacio un flex container?</h3>
+    <p>Después de colocar los elementos con su tamaño base, puede sobrar o faltar espacio. <code>flex-grow</code> decide quién se lleva el sobrante, <code>flex-shrink</code> decide quién cede cuando falta, y <code>flex-basis</code> es el punto de partida antes de cualquier ajuste.</p>
+
+    <table class="prop-table">
+      <thead><tr><th>Propiedad</th><th>Qué hace</th><th>Valor por defecto</th></tr></thead>
+      <tbody>
+        <tr><td>flex-grow</td><td>Factor de crecimiento al sobrar espacio</td><td>0 (no crece)</td></tr>
+        <tr><td>flex-shrink</td><td>Factor de encogimiento al faltar espacio</td><td>1 (sí encoge)</td></tr>
+        <tr><td>flex-basis</td><td>Tamaño inicial antes del ajuste</td><td>auto</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>La regla de los factores</strong>
+        Con <code>flex-grow</code> el espacio sobrante se reparte <em>proporcionalmente</em>: si un elemento tiene 2 y otro tiene 1, el primero se lleva el doble del sobrante, no el doble del tamaño total.
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-label">CSS — tres elementos que se reparten el espacio de forma diferente</div>
+      <pre><span class="n">.contenedor</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;
+  <span class="k">gap</span>: <span class="v">16px</span>;
+}
+
+<span class="c">/* La imagen no crece ni encoge nunca */</span>
+<span class="n">.imagen</span> {
+  <span class="k">flex</span>: <span class="v">0 0 200px</span>;   <span class="c">/* grow:0  shrink:0  basis:200px */</span>
+}
+
+<span class="c">/* El texto ocupa todo el espacio disponible */</span>
+<span class="n">.texto</span> {
+  <span class="k">flex</span>: <span class="v">1</span>;             <span class="c">/* equivale a: 1 1 0% */</span>
+  <span class="k">min-width</span>: <span class="v">0</span>;        <span class="c">/* evita desbordamiento de texto largo */</span>
+}
+
+<span class="c">/* La columna lateral ocupa la mitad que el texto */</span>
+<span class="n">.lateral</span> {
+  <span class="k">flex</span>: <span class="v">0.5</span>;           <span class="c">/* equivale a: 0.5 1 0% */</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="flex-shorthand">
+  <div class="section-eyebrow">Flexbox avanzado · 02</div>
+  <h2>La shorthand <code>flex</code> <span class="badge clave">clave</span></h2>
+  <p class="section-subtitle">Siempre usa la shorthand en lugar de las tres propiedades por separado. Los valores con uno, dos o tres números tienen significados específicos.</p>
+
+  <div class="subsection">
+    <table class="prop-table">
+      <thead><tr><th>Escritura</th><th>Equivale a</th><th>Uso típico</th></tr></thead>
+      <tbody>
+        <tr><td>flex: 1</td><td>1 1 0%</td><td>Repartir espacio equitativamente entre hijos</td></tr>
+        <tr><td>flex: auto</td><td>1 1 auto</td><td>Crecer y encoger partiendo del tamaño propio</td></tr>
+        <tr><td>flex: none</td><td>0 0 auto</td><td>Tamaño fijo, nunca crece ni encoge</td></tr>
+        <tr><td>flex: 0 0 200px</td><td>grow:0 shrink:0 basis:200px</td><td>Columna fija inamovible</td></tr>
+        <tr><td>flex: 2 1 300px</td><td>grow:2 shrink:1 basis:300px</td><td>Se prefiere el doble de espacio extra</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>flex: 1 no es lo mismo que flex: auto</strong>
+        Con <code>flex: 1</code> el <code>basis</code> es <code>0%</code>: todos los hijos parten de cero y reparten el espacio total. Con <code>flex: auto</code> el <code>basis</code> es <code>auto</code>: cada hijo parte de su tamaño propio y solo reparte el sobrante.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="flex-alineacion">
+  <div class="section-eyebrow">Flexbox avanzado · 03</div>
+  <h2>align-self y order</h2>
+  <p class="section-subtitle">Para excepcionar un hijo concreto sin tocar el contenedor.</p>
+
+  <div class="subsection">
+    <h3>align-self</h3>
+    <p>Sobreescribe el <code>align-items</code> del contenedor para un hijo específico. Acepta los mismos valores: <code>flex-start</code>, <code>flex-end</code>, <code>center</code>, <code>stretch</code>, <code>baseline</code>.</p>
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="n">.tarjeta-destacada</span> {
+  <span class="k">align-self</span>: <span class="v">flex-start</span>; <span class="c">/* no se estira aunque los demás sí */</span>
+}
+
+<span class="n">.badge-precio</span> {
+  <span class="k">align-self</span>: <span class="v">center</span>; <span class="c">/* centrado verticalmente aunque el contenedor use flex-start */</span>
+}</pre>
+    </div>
+
+    <h3>order</h3>
+    <p>Cambia el orden visual sin tocar el HTML. El orden por defecto de todos los elementos es 0; un valor más alto queda después, uno negativo queda antes.</p>
+    <div class="code-block">
+      <div class="code-label">CSS — imagen primero en móvil aunque en el HTML esté después</div>
+      <pre><span class="c">/* En móvil: imagen arriba, texto abajo */</span>
+<span class="n">.imagen</span> { <span class="k">order</span>: <span class="v">-1</span>; }
+
+<span class="c">/* En tablet: orden natural del DOM */</span>
+<span class="n">@media (min-width: 768px)</span> {
+  <span class="n">.imagen</span> { <span class="k">order</span>: <span class="v">0</span>; }
+}</pre>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>Accesibilidad</strong>
+        <code>order</code> cambia el orden visual pero no el orden de tabulación del teclado ni el de los lectores de pantalla, que siguen el DOM. Úsalo solo cuando el orden visual alternativo no afecte a la comprensión del contenido.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="flex-anidado">
+  <div class="section-eyebrow">Flexbox avanzado · 04</div>
+  <h2>Flexbox anidado</h2>
+  <p class="section-subtitle">Un elemento puede ser al mismo tiempo hijo flex (dentro de su contenedor) y contenedor flex (para sus propios hijos).</p>
+
+  <div class="subsection">
+    <h3>Patrón: barra de navegación con tres zonas</h3>
+    <p>Un nivel de flex separa logo/central/acciones. Dentro de cada zona, otro nivel de flex organiza sus elementos internos.</p>
+    <div class="diagram">┌──────────────────────────────────────────────────────┐
+│  NAV  →  display:flex  justify-content:space-between │
+│                                                      │
+│  ┌────────────┐  ┌────────────────┐  ┌───────────┐  │
+│  │   LOGO     │  │  ENLACES       │  │ ACCIONES  │  │
+│  │  flex:none │  │  display:flex  │  │ display:  │  │
+│  │            │  │  gap: 24px     │  │   flex    │  │
+│  └────────────┘  └────────────────┘  └───────────┘  │
+└──────────────────────────────────────────────────────┘</div>
+
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="n">nav</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;
+  <span class="k">align-items</span>: <span class="v">center</span>;
+  <span class="k">justify-content</span>: <span class="v">space-between</span>;
+  <span class="k">gap</span>: <span class="v">16px</span>;
+}
+
+<span class="n">.nav-logo</span> {
+  <span class="k">flex</span>: <span class="v">none</span>;   <span class="c">/* tamaño fijo, no crece ni encoge */</span>
+}
+
+<span class="n">.nav-enlaces</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;   <span class="c">/* contenedor flex anidado */</span>
+  <span class="k">gap</span>: <span class="v">24px</span>;
+  <span class="k">list-style</span>: <span class="v">none</span>;
+  <span class="k">margin</span>: <span class="v">0</span>;
+  <span class="k">padding</span>: <span class="v">0</span>;
+}
+
+<span class="n">.nav-acciones</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;   <span class="c">/* otro contenedor flex anidado */</span>
+  <span class="k">gap</span>: <span class="v">8px</span>;
+  <span class="k">align-items</span>: <span class="v">center</span>;
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="align-content">
+  <div class="section-eyebrow">Flexbox avanzado · 05</div>
+  <h2>align-content vs align-items</h2>
+  <p class="section-subtitle">La diferencia importa en cuanto aparecen varias filas con <code>flex-wrap: wrap</code>.</p>
+
+  <div class="subsection">
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h4>align-items</h4>
+        <ul>
+          <li>Alinea los elementos <strong>dentro de su fila</strong></li>
+          <li>Actúa fila por fila</li>
+          <li>Funciona con una o varias filas</li>
+        </ul>
+      </div>
+      <div class="compare-card">
+        <h4>align-content</h4>
+        <ul>
+          <li>Distribuye las <strong>filas entre sí</strong> dentro del contenedor</li>
+          <li>Solo tiene efecto con <code>flex-wrap: wrap</code></li>
+          <li>Sin varias filas no hace nada</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="n">.contenedor</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;
+  <span class="k">flex-wrap</span>: <span class="v">wrap</span>;
+  <span class="k">height</span>: <span class="v">400px</span>;
+
+  <span class="k">align-items</span>: <span class="v">center</span>;         <span class="c">/* centra cada elemento en su fila */</span>
+  <span class="k">align-content</span>: <span class="v">space-between</span>; <span class="c">/* separa las filas entre sí */</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     BLOQUE 2 · POSITION
+═══════════════════════════════════════════════════════════ -->
+
+<section class="section" id="position-contexto">
+  <div class="section-eyebrow">Position · 01</div>
+  <h2>Contextos de posicionamiento</h2>
+  <p class="section-subtitle">Entender cómo el navegador decide desde dónde se miden los offsets de un elemento posicionado.</p>
+
+  <div class="subsection">
+    <table class="prop-table">
+      <thead><tr><th>Valor</th><th>Comportamiento</th><th>Crea contexto</th></tr></thead>
+      <tbody>
+        <tr><td>static</td><td>Flujo normal. top/left no tienen efecto.</td><td>No</td></tr>
+        <tr><td>relative</td><td>Se desplaza desde su posición original. El espacio original se conserva.</td><td>Sí</td></tr>
+        <tr><td>absolute</td><td>Sale del flujo. Se posiciona respecto al ancestro posicionado más cercano.</td><td>Sí</td></tr>
+        <tr><td>fixed</td><td>Sale del flujo. Se posiciona respecto al viewport. No se mueve al hacer scroll.</td><td>Sí</td></tr>
+        <tr><td>sticky</td><td>Flujo normal hasta que llega al umbral definido; entonces actúa como fixed.</td><td>Sí</td></tr>
+      </tbody>
+    </table>
+
+    <div class="pro-rule">
+      <strong>La regla del padre:</strong> Un elemento con <code>position: absolute</code> busca el ancestro más cercano que tenga <code>position</code> distinto de <code>static</code>. Si no encuentra ninguno, se posiciona respecto al <code>&lt;body&gt;</code>. Por eso casi siempre necesitas añadir <code>position: relative</code> al contenedor.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="position-fixed">
+  <div class="section-eyebrow">Position · 02</div>
+  <h2>fixed y z-index</h2>
+  <p class="section-subtitle">Para barras de navegación que permanecen visibles al hacer scroll.</p>
+
+  <div class="subsection">
+    <div class="code-block">
+      <div class="code-label">CSS — nav fija con z-index</div>
+      <pre><span class="n">nav</span> {
+  <span class="k">position</span>: <span class="v">fixed</span>;
+  <span class="k">top</span>: <span class="v">0</span>;
+  <span class="k">left</span>: <span class="v">0</span>;
+  <span class="k">right</span>: <span class="v">0</span>;
+  <span class="k">z-index</span>: <span class="v">100</span>;   <span class="c">/* por encima del resto de la página */</span>
+  <span class="k">background</span>: <span class="v">var(--color-nav)</span>;
+}
+
+<span class="c">/* Compensar la altura de la nav para que no tape el contenido */</span>
+<span class="n">body</span> {
+  <span class="k">padding-top</span>: <span class="v">64px</span>; <span class="c">/* igual que la altura de la nav */</span>
+}</pre>
+    </div>
+
+    <h3>Contextos de apilamiento: por qué <code>z-index</code> a veces no funciona</h3>
+    <p>Un <code>z-index</code> solo compite con elementos del mismo contexto de apilamiento. Propiedades como <code>transform</code>, <code>opacity &lt; 1</code>, <code>filter</code> o <code>isolation: isolate</code> crean un contexto nuevo. Un elemento dentro de ese contexto nunca puede salirse de él por alto que sea su <code>z-index</code>.</p>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>Diagnóstico en DevTools</strong>
+        Si un z-index no funciona, busca un ancestro con <code>transform</code>, <code>will-change</code> u <code>opacity &lt; 1</code>. Ese ancestro está creando un contexto de apilamiento nuevo que confina al elemento.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="position-sticky">
+  <div class="section-eyebrow">Position · 03</div>
+  <h2>sticky <span class="badge new">muy usado</span></h2>
+  <p class="section-subtitle">El elemento se comporta como relativo hasta que llega al umbral; entonces actúa como fijo. Vuelve al flujo normal cuando su contenedor abandona la pantalla.</p>
+
+  <div class="subsection">
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="n">.cabecera-seccion</span> {
+  <span class="k">position</span>: <span class="v">sticky</span>;
+  <span class="k">top</span>: <span class="v">0</span>;         <span class="c">/* umbral: se pega cuando llega al borde superior */</span>
+  <span class="k">z-index</span>: <span class="v">10</span>;
+  <span class="k">background</span>: <span class="v">var(--bg)</span>; <span class="c">/* necesita fondo para tapar lo que hay detrás */</span>
+}</pre>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h4>sticky ✅</h4>
+        <ul>
+          <li>Se mueve con el scroll hasta el umbral</li>
+          <li>El espacio original se conserva en el flujo</li>
+          <li>Deja de ser sticky cuando su contenedor sale de pantalla</li>
+          <li>No requiere compensar padding en el body</li>
+        </ul>
+      </div>
+      <div class="compare-card">
+        <h4>fixed</h4>
+        <ul>
+          <li>Sale del flujo completamente</li>
+          <li>Siempre en la misma posición del viewport</li>
+          <li>Requiere compensar con padding en el body</li>
+          <li>Puede tapar contenido si no se gestiona</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>Sticky no funciona si…</strong>
+        El contenedor tiene <code>overflow: hidden</code> o <code>overflow: auto</code>. En ese caso el elemento sticky nunca se "pega" porque su contenedor ya gestiona el scroll.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="position-absolute">
+  <div class="section-eyebrow">Position · 04</div>
+  <h2>absolute para superposiciones</h2>
+  <p class="section-subtitle">El patrón más habitual: badge, etiqueta o botón flotante sobre una imagen o tarjeta.</p>
+
+  <div class="subsection">
+    <div class="code-block">
+      <div class="code-label">HTML + CSS — badge sobre imagen</div>
+      <pre><span class="c">/* HTML */</span>
+&lt;<span class="n">div</span> <span class="k">class</span>=<span class="s">"tarjeta"</span>&gt;
+  &lt;<span class="n">img</span> <span class="k">src</span>=<span class="s">"plato.jpg"</span> <span class="k">alt</span>=<span class="s">"Ramen"</span>&gt;
+  &lt;<span class="n">span</span> <span class="k">class</span>=<span class="s">"badge-nuevo"</span>&gt;Nuevo&lt;/<span class="n">span</span>&gt;
+&lt;/<span class="n">div</span>&gt;
+
+<span class="c">/* CSS */</span>
+<span class="n">.tarjeta</span> {
+  <span class="k">position</span>: <span class="v">relative</span>; <span class="c">/* contexto para el badge */</span>
+}
+
+<span class="n">.badge-nuevo</span> {
+  <span class="k">position</span>: <span class="v">absolute</span>;
+  <span class="k">top</span>: <span class="v">12px</span>;
+  <span class="k">right</span>: <span class="v">12px</span>;
+  <span class="c">/* también: transform: translate(50%, -50%) para centrar en esquina */</span>
+}</pre>
+    </div>
+
+    <h3>Centrar con transform</h3>
+    <p>Para centrar un elemento absolutamente posicionado respecto a su contenedor:</p>
+    <div class="code-block">
+      <div class="code-label">CSS — centrado absoluto</div>
+      <pre><span class="n">.elemento-centrado</span> {
+  <span class="k">position</span>: <span class="v">absolute</span>;
+  <span class="k">top</span>: <span class="v">50%</span>;
+  <span class="k">left</span>: <span class="v">50%</span>;
+  <span class="k">transform</span>: <span class="v">translate(-50%, -50%)</span>;
+  <span class="c">/* top/left sitúan la esquina superior izquierda en el centro;
+     transform la desplaza la mitad de su propio tamaño */</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     BLOQUE 3 · GRID AVANZADO
+═══════════════════════════════════════════════════════════ -->
+
+<section class="section" id="grid-areas">
+  <div class="section-eyebrow">Grid avanzado · 01</div>
+  <h2>grid-template-areas</h2>
+  <p class="section-subtitle">Define el layout como un mapa visual de texto. Mucho más legible que coordenadas de líneas para layouts de página completa.</p>
+
+  <div class="subsection">
+    <div class="code-block">
+      <div class="code-label">CSS — layout de página con áreas nombradas</div>
+      <pre><span class="n">.pagina</span> {
+  <span class="k">display</span>: <span class="v">grid</span>;
+  <span class="k">grid-template-columns</span>: <span class="v">1fr 3fr</span>;
+  <span class="k">grid-template-rows</span>: <span class="v">auto 1fr auto</span>;
+  <span class="k">grid-template-areas</span>:
+    <span class="s">"header  header"</span>
+    <span class="s">"sidebar main  "</span>
+    <span class="s">"footer  footer"</span>;
+  <span class="k">min-height</span>: <span class="v">100dvh</span>;
+  <span class="k">gap</span>: <span class="v">16px</span>;
+}
+
+<span class="n">header</span>  { <span class="k">grid-area</span>: <span class="v">header</span>;  }
+<span class="n">aside</span>   { <span class="k">grid-area</span>: <span class="v">sidebar</span>; }
+<span class="n">main</span>    { <span class="k">grid-area</span>: <span class="v">main</span>;    }
+<span class="n">footer</span>  { <span class="k">grid-area</span>: <span class="v">footer</span>;  }
+
+<span class="c">/* Móvil: todo en una columna */</span>
+<span class="n">@media (max-width: 767px)</span> {
+  <span class="n">.pagina</span> {
+    <span class="k">grid-template-columns</span>: <span class="v">1fr</span>;
+    <span class="k">grid-template-areas</span>:
+      <span class="s">"header"</span>
+      <span class="s">"main"</span>
+      <span class="s">"sidebar"</span>
+      <span class="s">"footer"</span>;
+  }
+}</pre>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">✅</span>
+      <div class="callout-body">
+        <strong>Punto en el área</strong>
+        Escribe <code>.</code> para indicar que una celda está vacía: <code>"sidebar . main"</code> deja la columna central sin contenido.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="grid-implicito">
+  <div class="section-eyebrow">Grid avanzado · 02</div>
+  <h2>Grid explícito vs implícito</h2>
+  <p class="section-subtitle">Lo que defines es el grid explícito. Cuando los elementos no caben, el navegador crea filas automáticas: el grid implícito.</p>
+
+  <div class="subsection">
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="n">.galeria</span> {
+  <span class="k">display</span>: <span class="v">grid</span>;
+  <span class="k">grid-template-columns</span>: <span class="v">repeat(3, 1fr)</span>; <span class="c">/* grid explícito: 3 columnas */</span>
+  <span class="k">gap</span>: <span class="v">16px</span>;
+
+  <span class="c">/* Controlar las filas que crea el navegador automáticamente */</span>
+  <span class="k">grid-auto-rows</span>: <span class="v">200px</span>;        <span class="c">/* cada fila implícita mide 200px */</span>
+  <span class="c">/* o mejor, con mínimo y máximo: */</span>
+  <span class="k">grid-auto-rows</span>: <span class="v">minmax(150px, auto)</span>;
+
+  <span class="c">/* Dirección de llenado automático */</span>
+  <span class="k">grid-auto-flow</span>: <span class="v">row</span>;    <span class="c">/* por defecto: llena por filas */</span>
+  <span class="c">/* grid-auto-flow: dense  → rellena huecos con elementos más pequeños */</span>
+}</pre>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>¿Cuándo usar grid-auto-rows?</strong>
+        Cuando el número de elementos es variable (venido de una base de datos, dinámico con JS, etc.) y no quieres definir filas explícitas para cada uno.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="grid-lineas">
+  <div class="section-eyebrow">Grid avanzado · 03</div>
+  <h2>Colocación con líneas numéricas</h2>
+  <p class="section-subtitle">Las líneas del grid se numeran desde 1. También puedes contar desde el final con valores negativos: <code>-1</code> es la última línea.</p>
+
+  <div class="subsection">
+    <div class="diagram">  col 1   col 2   col 3
+│       │       │       │
+1       2       3       4   ← líneas de columna
+                           (-4)   (-3)   (-2)   (-1)
+
+─────────────────────────── ← línea de fila 1
+         CELDA A
+─────────────────────────── ← línea de fila 2
+         CELDA B
+─────────────────────────── ← línea de fila 3</div>
+
+    <div class="code-block">
+      <div class="code-label">CSS — elemento que ocupa varias celdas</div>
+      <pre><span class="c">/* Elemento que ocupa toda la fila (desde línea 1 hasta la última) */</span>
+<span class="n">.titular</span> {
+  <span class="k">grid-column</span>: <span class="v">1 / -1</span>; <span class="c">/* desde la primera hasta la última línea */</span>
+}
+
+<span class="c">/* Elemento que ocupa 2 columnas a partir de la columna 2 */</span>
+<span class="n">.destacado</span> {
+  <span class="k">grid-column</span>: <span class="v">2 / 4</span>;   <span class="c">/* equivale a: grid-column: 2 / span 2 */</span>
+  <span class="k">grid-row</span>: <span class="v">1 / 3</span>;      <span class="c">/* ocupa las dos primeras filas */</span>
+}
+
+<span class="c">/* Shorthand: columna-inicio / columna-fin */</span>
+<span class="c">/* span N indica "ocupa N pistas a partir de aquí" */</span>
+<span class="n">.wide</span> {
+  <span class="k">grid-column</span>: <span class="v">span 2</span>;  <span class="c">/* ocupa 2 columnas desde donde caiga */</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="grid-place">
+  <div class="section-eyebrow">Grid avanzado · 04</div>
+  <h2>place-items y place-content</h2>
+  <p class="section-subtitle">Las shorthands más útiles para centrar en Grid.</p>
+
+  <div class="subsection">
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="c">/* place-items es shorthand de: align-items / justify-items */</span>
+<span class="n">.contenedor</span> {
+  <span class="k">display</span>: <span class="v">grid</span>;
+  <span class="k">place-items</span>: <span class="v">center</span>; <span class="c">/* centra cada celda en su área */</span>
+}
+
+<span class="c">/* place-content es shorthand de: align-content / justify-content */</span>
+<span class="n">.contenedor-grande</span> {
+  <span class="k">display</span>: <span class="v">grid</span>;
+  <span class="k">height</span>: <span class="v">100dvh</span>;
+  <span class="k">place-content</span>: <span class="v">center</span>; <span class="c">/* centra el grid completo en el contenedor */</span>
+}
+
+<span class="c">/* Centrado perfecto de un elemento solitario */</span>
+<span class="n">.centrar-todo</span> {
+  <span class="k">display</span>: <span class="v">grid</span>;
+  <span class="k">place-items</span>: <span class="v">center</span>;
+  <span class="k">min-height</span>: <span class="v">100dvh</span>;
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="autofill-autofit">
+  <div class="section-eyebrow">Grid avanzado · 05</div>
+  <h2>auto-fill vs auto-fit</h2>
+  <p class="section-subtitle">Ambos crean columnas automáticamente. La diferencia aparece cuando hay menos elementos que columnas caben.</p>
+
+  <div class="subsection">
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="c">/* auto-fill: crea todas las columnas que caben, estén vacías o no */</span>
+<span class="n">.galeria-fill</span> {
+  <span class="k">display</span>: <span class="v">grid</span>;
+  <span class="k">grid-template-columns</span>: <span class="v">repeat(auto-fill, minmax(200px, 1fr))</span>;
+}
+
+<span class="c">/* auto-fit: colapsa las columnas vacías; los elementos se estiran */</span>
+<span class="n">.galeria-fit</span> {
+  <span class="k">display</span>: <span class="v">grid</span>;
+  <span class="k">grid-template-columns</span>: <span class="v">repeat(auto-fit, minmax(200px, 1fr))</span>;
+}</pre>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h4>auto-fill → usa cuando…</h4>
+        <ul>
+          <li>Quieres que los elementos no se estiren solos</li>
+          <li>Puedes añadir más elementos después</li>
+          <li>Usas alineación para posicionarlos</li>
+        </ul>
+      </div>
+      <div class="compare-card">
+        <h4>auto-fit → usa cuando…</h4>
+        <ul>
+          <li>Quieres que los pocos elementos llenen el ancho</li>
+          <li>El número de elementos es fijo</li>
+          <li>Prefieres que el layout siempre parezca lleno</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pro-rule">
+      <strong>El patrón más robusto:</strong> <code>grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr))</code> — el <code>min(100%, 280px)</code> evita que el mínimo sea mayor que el contenedor en móvil, lo que rompería el layout.
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     BLOQUE 4 · RESPONSIVE
+═══════════════════════════════════════════════════════════ -->
+
+<section class="section" id="mobile-first">
+  <div class="section-eyebrow">Responsive · 01</div>
+  <h2>Mobile-first</h2>
+  <p class="section-subtitle">Las reglas CSS base describen el diseño para móvil. Las media queries solo añaden o modifican para pantallas más grandes. Nunca al revés.</p>
+
+  <div class="subsection">
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h4>❌ Desktop-first (evitar)</h4>
+        <ul>
+          <li>CSS base para escritorio</li>
+          <li>Media queries con <code>max-width</code> para reducir</li>
+          <li>Muchas propiedades que "deshacer"</li>
+          <li>Móvil es un afterthought</li>
+        </ul>
+      </div>
+      <div class="compare-card">
+        <h4>✅ Mobile-first</h4>
+        <ul>
+          <li>CSS base para móvil</li>
+          <li>Media queries con <code>min-width</code> para enriquecer</li>
+          <li>Las reglas solo suman, no deshacen</li>
+          <li>Móvil funciona sin media queries</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-label">CSS — mobile-first en la práctica</div>
+      <pre><span class="c">/* BASE: diseño para móvil (sin media query) */</span>
+<span class="n">.tarjeta</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;
+  <span class="k">flex-direction</span>: <span class="v">column</span>; <span class="c">/* apilado en móvil */</span>
+  <span class="k">gap</span>: <span class="v">16px</span>;
+}
+
+<span class="c">/* TABLET: a partir de 768px */</span>
+<span class="n">@media (min-width: 768px)</span> {
+  <span class="n">.tarjeta</span> {
+    <span class="k">flex-direction</span>: <span class="v">row</span>; <span class="c">/* en fila en tablet */</span>
+  }
+}
+
+<span class="c">/* ESCRITORIO: a partir de 1024px */</span>
+<span class="n">@media (min-width: 1024px)</span> {
+  <span class="n">.tarjeta</span> {
+    <span class="k">gap</span>: <span class="v">32px</span>;
+    <span class="k">padding</span>: <span class="v">32px</span>;
+  }
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="media-queries">
+  <div class="section-eyebrow">Responsive · 02</div>
+  <h2>Media queries</h2>
+  <p class="section-subtitle">Los tres breakpoints del curso y cómo escribirlos correctamente.</p>
+
+  <div class="subsection">
+    <table class="prop-table">
+      <thead><tr><th>Breakpoint</th><th>Dispositivo objetivo</th><th>Escritura</th></tr></thead>
+      <tbody>
+        <tr><td>480px</td><td>Móvil grande / phablet</td><td><code>@media (min-width: 480px)</code></td></tr>
+        <tr><td>768px</td><td>Tablet</td><td><code>@media (min-width: 768px)</code></td></tr>
+        <tr><td>1024px</td><td>Escritorio</td><td><code>@media (min-width: 1024px)</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Breakpoints en <code>em</code> en lugar de <code>px</code></h3>
+    <p>Los breakpoints en <code>em</code> respetan el tamaño de fuente del sistema, lo que mejora la accesibilidad. <code>768px ÷ 16px = 48em</code>.</p>
+    <div class="code-block">
+      <div class="code-label">CSS — breakpoints en em (recomendado en proyectos reales)</div>
+      <pre><span class="n">@media (min-width: 30em)</span>  { <span class="c">/* 480px */</span> }
+<span class="n">@media (min-width: 48em)</span>  { <span class="c">/* 768px */</span> }
+<span class="n">@media (min-width: 64em)</span>  { <span class="c">/* 1024px */</span> }</pre>
+    </div>
+
+    <h3>Otras media queries útiles</h3>
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="c">/* Preferencia del sistema: modo oscuro */</span>
+<span class="n">@media (prefers-color-scheme: dark)</span> { }
+
+<span class="c">/* Sin animaciones: respetar configuración de accesibilidad */</span>
+<span class="n">@media (prefers-reduced-motion: reduce)</span> {
+  <span class="n">*</span> { <span class="k">transition</span>: <span class="v">none !important</span>; <span class="k">animation</span>: <span class="v">none !important</span>; }
+}
+
+<span class="c">/* Pantalla de alta resolución (retina) */</span>
+<span class="n">@media (min-resolution: 2dppx)</span> { }
+
+<span class="c">/* Rango: entre tablet y escritorio */</span>
+<span class="n">@media (min-width: 48em) and (max-width: 64em)</span> { }</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="intrinseco">
+  <div class="section-eyebrow">Responsive · 03</div>
+  <h2>Layouts intrínsecos <span class="badge new">avanzado</span></h2>
+  <p class="section-subtitle">CSS puede hacer que los layouts se adapten solos, sin ninguna media query explícita.</p>
+
+  <div class="subsection">
+    <h3>Flex con wrap</h3>
+    <div class="code-block">
+      <div class="code-label">CSS — columnas que se apilan solas</div>
+      <pre><span class="n">.columnas</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;
+  <span class="k">flex-wrap</span>: <span class="v">wrap</span>;
+  <span class="k">gap</span>: <span class="v">16px</span>;
+}
+<span class="n">.columnas > *</span> {
+  <span class="k">flex</span>: <span class="v">1 1 220px</span>;
+  <span class="c">/* crece (1), encoge (1), base mínima de 220px
+     Cuando no caben en fila, se apilan automáticamente */</span>
+}</pre>
+    </div>
+
+    <h3>Grid con auto-fit</h3>
+    <div class="code-block">
+      <div class="code-label">CSS — grid de cards que se adapta solo</div>
+      <pre><span class="n">.cards</span> {
+  <span class="k">display</span>: <span class="v">grid</span>;
+  <span class="k">grid-template-columns</span>: <span class="v">repeat(auto-fit, minmax(min(100%, 280px), 1fr))</span>;
+  <span class="k">gap</span>: <span class="v">24px</span>;
+  <span class="c">/* Sin ninguna media query:
+     - En móvil (< 280px disponibles): 1 columna
+     - En tablet (~600px): 2 columnas
+     - En escritorio (~900px): 3 columnas */</span>
+}</pre>
+    </div>
+
+    <div class="pro-rule">
+      <strong>¿Cuándo usar layouts intrínsecos vs media queries?</strong>
+      Intrínsecos cuando el contenido puede fluir libremente (galería de cards, lista de chips, footer en columnas). Media queries cuando el cambio de layout implica reorganizar zonas semánticamente distintas (nav que se convierte en hamburger, sidebar que colapsa).
+    </div>
+  </div>
+</section>
+
+<section class="section" id="clamp">
+  <div class="section-eyebrow">Responsive · 04</div>
+  <h2>clamp() y tipografía fluida</h2>
+  <p class="section-subtitle">Un valor que escala suavemente entre un mínimo y un máximo, sin media queries.</p>
+
+  <div class="subsection">
+    <div class="code-block">
+      <div class="code-label">CSS — sintaxis de clamp()</div>
+      <pre><span class="c">/* clamp(mínimo, valor-ideal, máximo) */</span>
+<span class="n">h1</span> {
+  <span class="k">font-size</span>: <span class="v">clamp(1.75rem, 5vw, 3.5rem)</span>;
+  <span class="c">/* mínimo:  1.75rem (28px) — nunca más pequeño
+     ideal:   5vw — crece con el viewport
+     máximo:  3.5rem (56px) — nunca más grande */</span>
+}
+
+<span class="c">/* También para padding y spacing */</span>
+<span class="n">.section</span> {
+  <span class="k">padding-block</span>: <span class="v">clamp(32px, 8vw, 96px)</span>;
+}</pre>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">✅</span>
+      <div class="callout-body">
+        <strong>Generador de clamp()</strong>
+        La función <code>clamp()</code> se puede calcular matemáticamente para que el escalado sea completamente lineal entre los dos breakpoints. Herramienta útil: <strong>utopia.fyi</strong>.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="flex-grid-combinados">
+  <div class="section-eyebrow">Responsive · 05</div>
+  <h2>Grid + Flex combinados <span class="badge clave">clave profesional</span></h2>
+  <p class="section-subtitle">La regla de oro del CSS profesional: Grid para la estructura de la página, Flex para los componentes internos.</p>
+
+  <div class="subsection">
+    <div class="pro-rule">
+      <strong>Grid es bidimensional</strong> — controla filas y columnas al mismo tiempo. Úsalo para estructurar zonas de la página: header/main/sidebar/footer, grids de cards, layouts asimétricos.<br><br>
+      <strong>Flex es unidimensional</strong> — controla una fila o una columna. Úsalo dentro de los componentes: interior de una card, barra de navegación, grupo de botones, cabecera de una sección.
+    </div>
+
+    <div class="code-block">
+      <div class="code-label">CSS — Grid para la página, Flex para los componentes</div>
+      <pre><span class="c">/* GRID: estructura macro de la página */</span>
+<span class="n">.pagina</span> {
+  <span class="k">display</span>: <span class="v">grid</span>;
+  <span class="k">grid-template-areas</span>:
+    <span class="s">"header"</span>
+    <span class="s">"main"</span>
+    <span class="s">"footer"</span>;
+}
+
+<span class="c">/* FLEX: interior de cada componente */</span>
+<span class="n">.card</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;         <span class="c">/* flex para el interior */</span>
+  <span class="k">flex-direction</span>: <span class="v">column</span>;
+  <span class="k">gap</span>: <span class="v">12px</span>;
+}
+
+<span class="n">.card-footer</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;
+  <span class="k">justify-content</span>: <span class="v">space-between</span>;
+  <span class="k">align-items</span>: <span class="v">center</span>;
+  <span class="k">margin-top</span>: <span class="v">auto</span>; <span class="c">/* empuja el footer al fondo de la card */</span>
+}
+
+<span class="c">/* Pero puedes romper la regla cuando tiene sentido:
+   un grid de 2 celdas para centrar un icono + texto */</span>
+<span class="n">.icono-label</span> {
+  <span class="k">display</span>: <span class="v">grid</span>;
+  <span class="k">grid-template-columns</span>: <span class="v">auto 1fr</span>;
+  <span class="k">align-items</span>: <span class="v">center</span>;
+  <span class="k">gap</span>: <span class="v">8px</span>;
+}</pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     BLOQUE 5 · COMPONENTES DIFÍCILES
+═══════════════════════════════════════════════════════════ -->
+
+<section class="section" id="form-layout">
+  <div class="section-eyebrow">Componentes difíciles · 01</div>
+  <h2>Formulario responsive <span class="badge dificil">difícil</span></h2>
+  <p class="section-subtitle">Layout de formulario en columna única (móvil) → dos columnas (tablet), con <code>fieldset</code> y campos que ocupan todo el ancho.</p>
+
+  <div class="subsection">
+    <h3>Estructura con Grid</h3>
+    <div class="code-block">
+      <div class="code-label">CSS — formulario en 2 columnas con Grid</div>
+      <pre><span class="n">.formulario</span> {
+  <span class="k">display</span>: <span class="v">grid</span>;
+  <span class="k">grid-template-columns</span>: <span class="v">1fr</span>;   <span class="c">/* 1 columna en móvil */</span>
+  <span class="k">gap</span>: <span class="v">16px</span>;
+}
+
+<span class="n">@media (min-width: 768px)</span> {
+  <span class="n">.formulario</span> {
+    <span class="k">grid-template-columns</span>: <span class="v">1fr 1fr</span>; <span class="c">/* 2 columnas en tablet */</span>
+  }
+}
+
+<span class="c">/* Elementos que ocupan las dos columnas */</span>
+<span class="n">.campo-ancho</span>,
+<span class="n">textarea</span>,
+<span class="n">fieldset</span>,
+<span class="n">.boton-enviar</span> {
+  <span class="k">grid-column</span>: <span class="v">1 / -1</span>;
+}
+
+<span class="c">/* Mínimo táctil: 44px de altura en controles interactivos */</span>
+<span class="n">input</span>, <span class="n">select</span>, <span class="n">textarea</span>, <span class="n">button</span> {
+  <span class="k">min-height</span>: <span class="v">44px</span>;
+}</pre>
+    </div>
+
+    <h3>fieldset y legend estilizados</h3>
+    <p>El <code>fieldset</code> tiene comportamientos de modelo de caja peculiares. Hay que resetearlos explícitamente.</p>
+    <div class="code-block">
+      <div class="code-label">CSS — reset y estilo de fieldset</div>
+      <pre><span class="n">fieldset</span> {
+  <span class="k">border</span>: <span class="v">1px solid var(--border)</span>;
+  <span class="k">border-radius</span>: <span class="v">8px</span>;
+  <span class="k">padding</span>: <span class="v">16px</span>;
+  <span class="k">margin</span>: <span class="v">0</span>;        <span class="c">/* reset del margen por defecto del navegador */</span>
+  <span class="k">min-width</span>: <span class="v">0</span>;     <span class="c">/* evita que fieldset se desborde en flex/grid */</span>
+}
+
+<span class="n">legend</span> {
+  <span class="k">font-weight</span>: <span class="v">600</span>;
+  <span class="k">font-size</span>: <span class="v">0.875rem</span>;
+  <span class="k">padding</span>: <span class="v">0 8px</span>;   <span class="c">/* separa el texto del borde */</span>
+  <span class="k">color</span>: <span class="v">var(--fg-soft)</span>;
+}</pre>
+    </div>
+
+    <h3>Columnas asimétricas dentro de un fieldset</h3>
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="n">.grupo-nombre</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;
+  <span class="k">flex-wrap</span>: <span class="v">wrap</span>;
+  <span class="k">gap</span>: <span class="v">12px</span>;
+}
+
+<span class="n">.campo-nombre</span> {
+  <span class="k">flex</span>: <span class="v">1 1 100px</span>; <span class="c">/* campo corto: nombre */</span>
+}
+<span class="n">.campo-apellidos</span> {
+  <span class="k">flex</span>: <span class="v">2 1 200px</span>; <span class="c">/* campo largo: apellidos (el doble de espacio preferido) */</span>
+}</pre>
+    </div>
+
+    <h3>Botón adaptativo</h3>
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="n">.boton-enviar</span> {
+  <span class="k">width</span>: <span class="v">100%</span>;         <span class="c">/* ocupa todo el ancho en móvil */</span>
+}
+
+<span class="n">@media (min-width: 768px)</span> {
+  <span class="n">.boton-enviar</span> {
+    <span class="k">width</span>: <span class="v">auto</span>;
+    <span class="k">margin-left</span>: <span class="v">auto</span>;  <span class="c">/* empuja a la derecha en escritorio */</span>
+    <span class="k">display</span>: <span class="v">block</span>;    <span class="c">/* margin:auto solo funciona en elementos de bloque */</span>
+  }
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="form-controles">
+  <div class="section-eyebrow">Componentes difíciles · 02</div>
+  <h2>Controles personalizados <span class="badge dificil">difícil</span></h2>
+  <p class="section-subtitle">Checkbox, radio y select con diseño propio, sin perder accesibilidad.</p>
+
+  <div class="subsection">
+    <h3>Checkbox personalizado</h3>
+    <div class="code-block">
+      <div class="code-label">HTML</div>
+      <pre>&lt;<span class="n">label</span> <span class="k">class</span>=<span class="s">"checkbox-label"</span>&gt;
+  &lt;<span class="n">input</span> <span class="k">type</span>=<span class="s">"checkbox"</span> <span class="k">class</span>=<span class="s">"checkbox-input"</span>&gt;
+  &lt;<span class="n">span</span> <span class="k">class</span>=<span class="s">"checkbox-custom"</span>&gt;&lt;/<span class="n">span</span>&gt;
+  Acepto las condiciones
+&lt;/<span class="n">label</span>&gt;</pre>
+    </div>
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="c">/* Ocultar el checkbox nativo manteniendo accesibilidad */</span>
+<span class="n">.checkbox-input</span> {
+  <span class="k">appearance</span>: <span class="v">none</span>;
+  <span class="k">position</span>: <span class="v">absolute</span>;
+  <span class="k">width</span>: <span class="v">1px</span>;
+  <span class="k">height</span>: <span class="v">1px</span>;
+  <span class="k">overflow</span>: <span class="v">hidden</span>;
+  <span class="k">clip</span>: <span class="v">rect(0,0,0,0)</span>;
+}
+
+<span class="c">/* El control visual */</span>
+<span class="n">.checkbox-custom</span> {
+  <span class="k">display</span>: <span class="v">inline-flex</span>;
+  <span class="k">width</span>: <span class="v">20px</span>;
+  <span class="k">height</span>: <span class="v">20px</span>;
+  <span class="k">border</span>: <span class="v">2px solid var(--border)</span>;
+  <span class="k">border-radius</span>: <span class="v">4px</span>;
+  <span class="k">background</span>: <span class="v">var(--bg-card)</span>;
+  <span class="k">transition</span>: <span class="v">border-color .15s, background .15s</span>;
+  <span class="k">flex-shrink</span>: <span class="v">0</span>;
+}
+
+<span class="c">/* Estado marcado: cambio de color */</span>
+<span class="n">.checkbox-input:checked + .checkbox-custom</span> {
+  <span class="k">background</span>: <span class="v">var(--accent)</span>;
+  <span class="k">border-color</span>: <span class="v">var(--accent)</span>;
+}
+
+<span class="c">/* Tick con ::before */</span>
+<span class="n">.checkbox-input:checked + .checkbox-custom::before</span> {
+  <span class="k">content</span>: <span class="v">"✓"</span>;
+  <span class="k">color</span>: <span class="v">white</span>;
+  <span class="k">font-size</span>: <span class="v">13px</span>;
+  <span class="k">margin</span>: <span class="v">auto</span>;
+}
+
+<span class="c">/* Estado focus: visible para navegación por teclado */</span>
+<span class="n">.checkbox-input:focus-visible + .checkbox-custom</span> {
+  <span class="k">outline</span>: <span class="v">2px solid var(--accent)</span>;
+  <span class="k">outline-offset</span>: <span class="v">2px</span>;
+}
+
+<span class="n">.checkbox-label</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;
+  <span class="k">align-items</span>: <span class="v">center</span>;
+  <span class="k">gap</span>: <span class="v">10px</span>;
+  <span class="k">cursor</span>: <span class="v">pointer</span>;
+}</pre>
+    </div>
+
+    <h3>Select estilizado</h3>
+    <p>El menú desplegable del <code>&lt;select&gt;</code> no se puede estilizar con CSS. Solo se puede cambiar el aspecto del control cerrado.</p>
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="n">select</span> {
+  <span class="k">appearance</span>: <span class="v">none</span>;   <span class="c">/* elimina la flecha nativa */</span>
+  <span class="k">background-image</span>: <span class="v">url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")</span>;
+  <span class="k">background-repeat</span>: <span class="v">no-repeat</span>;
+  <span class="k">background-position</span>: <span class="v">right 12px center</span>;
+  <span class="k">padding-right</span>: <span class="v">36px</span>; <span class="c">/* espacio para la flecha */</span>
+  <span class="k">cursor</span>: <span class="v">pointer</span>;
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tabla-scroll">
+  <div class="section-eyebrow">Componentes difíciles · 03</div>
+  <h2>Tabla responsive: scroll horizontal <span class="badge dificil">difícil</span></h2>
+  <p class="section-subtitle">La técnica más sencilla y compatible. La tabla mantiene su estructura pero puede scrollearse horizontalmente en móvil.</p>
+
+  <div class="subsection">
+    <div class="code-block">
+      <div class="code-label">HTML — el overflow va en el contenedor, no en la tabla</div>
+      <pre>&lt;<span class="n">div</span> <span class="k">class</span>=<span class="s">"tabla-wrapper"</span>&gt;
+  &lt;<span class="n">table</span>&gt;
+    <span class="c">&lt;!-- ... --&gt;</span>
+  &lt;/<span class="n">table</span>&gt;
+&lt;/<span class="n">div</span>&gt;</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-label">CSS</div>
+      <pre><span class="n">.tabla-wrapper</span> {
+  <span class="k">overflow-x</span>: <span class="v">auto</span>;   <span class="c">/* scroll en el contenedor */</span>
+  <span class="k">-webkit-overflow-scrolling</span>: <span class="v">touch</span>;  <span class="c">/* scroll suave en iOS */</span>
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+<span class="n">table</span> {
+  <span class="k">width</span>: <span class="v">100%</span>;
+  <span class="k">border-collapse</span>: <span class="v">collapse</span>;
+  <span class="k">table-layout</span>: <span class="v">fixed</span>;   <span class="c">/* anchos de columna predecibles */</span>
+}
+
+<span class="c">/* Columna de texto que absorbe el espacio disponible */</span>
+<span class="n">.col-nombre</span> { <span class="k">width</span>: <span class="v">100%</span>; }     <span class="c">/* se estira */</span>
+<span class="n">.col-estado</span> { <span class="k">width</span>: <span class="v">120px</span>; }    <span class="c">/* fija */</span>
+<span class="n">.col-fecha</span>  { <span class="k">width</span>: <span class="v">100px</span>; }    <span class="c">/* fija */</span>
+
+<span class="c">/* Cabecera sticky */</span>
+<span class="n">thead th</span> {
+  <span class="k">position</span>: <span class="v">sticky</span>;
+  <span class="k">top</span>: <span class="v">0</span>;
+  <span class="k">z-index</span>: <span class="v">1</span>;
+  <span class="k">background</span>: <span class="v">var(--bg-card)</span>; <span class="c">/* necesita fondo para tapar las filas al scroll */</span>
+}</pre>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>table-layout: fixed vs auto</strong>
+        Con <code>auto</code> (por defecto) el navegador ajusta el ancho de las columnas al contenido, lo que puede producir columnas muy desiguales. Con <code>fixed</code> el ancho se calcula a partir de las reglas CSS, lo que da más control y mejor rendimiento en tablas largas.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tabla-colapso">
+  <div class="section-eyebrow">Componentes difíciles · 04</div>
+  <h2>Tabla responsive: colapso a lista <span class="badge dificil">difícil</span></h2>
+  <p class="section-subtitle">En móvil, la tabla deja de ser tabla y cada fila se convierte en una "tarjeta" con etiquetas visibles. Requiere el atributo <code>data-label</code> en el HTML.</p>
+
+  <div class="subsection">
+    <div class="code-block">
+      <div class="code-label">HTML — cada td necesita data-label</div>
+      <pre>&lt;<span class="n">table</span>&gt;
+  &lt;<span class="n">thead</span>&gt;
+    &lt;<span class="n">tr</span>&gt;
+      &lt;<span class="n">th</span>&gt;Plato&lt;/<span class="n">th</span>&gt;
+      &lt;<span class="n">th</span>&gt;Precio&lt;/<span class="n">th</span>&gt;
+      &lt;<span class="n">th</span>&gt;Alérgenos&lt;/<span class="n">th</span>&gt;
+    &lt;/<span class="n">tr</span>&gt;
+  &lt;/<span class="n">thead</span>&gt;
+  &lt;<span class="n">tbody</span>&gt;
+    &lt;<span class="n">tr</span>&gt;
+      &lt;<span class="n">td</span> <span class="k">data-label</span>=<span class="s">"Plato"</span>&gt;Ramen&lt;/<span class="n">td</span>&gt;
+      &lt;<span class="n">td</span> <span class="k">data-label</span>=<span class="s">"Precio"</span>&gt;12€&lt;/<span class="n">td</span>&gt;
+      &lt;<span class="n">td</span> <span class="k">data-label</span>=<span class="s">"Alérgenos"</span>&gt;Gluten, soja&lt;/<span class="n">td</span>&gt;
+    &lt;/<span class="n">tr</span>&gt;
+  &lt;/<span class="n">tbody</span>&gt;
+&lt;/<span class="n">table</span>&gt;</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-label">CSS — la técnica de colapso</div>
+      <pre><span class="n">@media (max-width: 600px)</span> {
+
+  <span class="c">/* Ocultar cabecera de forma accesible (no display:none) */</span>
+  <span class="n">thead</span> {
+    <span class="k">position</span>: <span class="v">absolute</span>;
+    <span class="k">width</span>: <span class="v">1px</span>;
+    <span class="k">height</span>: <span class="v">1px</span>;
+    <span class="k">overflow</span>: <span class="v">hidden</span>;
+    <span class="k">clip</span>: <span class="v">rect(0 0 0 0)</span>;
+  }
+
+  <span class="c">/* La tabla, sus filas y celdas se vuelven bloques */</span>
+  <span class="n">table</span>, <span class="n">tbody</span>, <span class="n">tr</span>, <span class="n">td</span> {
+    <span class="k">display</span>: <span class="v">block</span>;
+    <span class="k">width</span>: <span class="v">100%</span>;
+  }
+
+  <span class="c">/* Cada fila se convierte en una "tarjeta" */</span>
+  <span class="n">tr</span> {
+    <span class="k">border</span>: <span class="v">1px solid var(--border)</span>;
+    <span class="k">border-radius</span>: <span class="v">8px</span>;
+    <span class="k">margin-bottom</span>: <span class="v">12px</span>;
+    <span class="k">padding</span>: <span class="v">12px</span>;
+  }
+
+  <span class="c">/* Cada celda muestra su etiqueta con ::before */</span>
+  <span class="n">td</span> {
+    <span class="k">display</span>: <span class="v">grid</span>;
+    <span class="k">grid-template-columns</span>: <span class="v">1fr 2fr</span>;
+    <span class="k">gap</span>: <span class="v">8px</span>;
+    <span class="k">padding</span>: <span class="v">6px 0</span>;
+    <span class="k">border-bottom</span>: <span class="v">1px solid var(--border)</span>;
+  }
+  <span class="n">td:last-child</span> { <span class="k">border-bottom</span>: <span class="v">none</span>; }
+
+  <span class="n">td::before</span> {
+    <span class="k">content</span>: <span class="v">attr(data-label)</span>; <span class="c">/* toma el texto del atributo HTML */</span>
+    <span class="k">font-weight</span>: <span class="v">600</span>;
+    <span class="k">font-size</span>: <span class="v">0.8rem</span>;
+    <span class="k">color</span>: <span class="v">var(--fg-soft)</span>;
+  }
+}</pre>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h4>Scroll → usa cuando…</h4>
+        <ul>
+          <li>La tabla tiene muchas columnas numéricas donde comparar en horizontal es importante</li>
+          <li>Los datos pierden sentido sin ver la cabecera</li>
+          <li>No puedes modificar el HTML</li>
+        </ul>
+      </div>
+      <div class="compare-card">
+        <h4>Colapso → usa cuando…</h4>
+        <ul>
+          <li>Cada fila es una entidad (un producto, una reserva, un contacto)</li>
+          <li>La comparación entre filas no es el objetivo principal</li>
+          <li>Puedes añadir <code>data-label</code> al HTML</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /content-inner -->
+</main><!-- /main -->
+
+<script>
+const menuBtn = document.getElementById('menuBtn');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+
+function openMenu() {
+  sidebar.classList.add('open');
+  overlay.classList.add('open');
+  menuBtn.setAttribute('aria-expanded', 'true');
+}
+function closeMenu() {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('open');
+  menuBtn.setAttribute('aria-expanded', 'false');
+}
+
+menuBtn.addEventListener('click', () =>
+  sidebar.classList.contains('open') ? closeMenu() : openMenu()
+);
+overlay.addEventListener('click', closeMenu);
+
+// Resaltar enlace activo al hacer scroll
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('.nav-list a');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const active = document.querySelector(`.nav-list a[href="#${entry.target.id}"]`);
+      if (active) {
+        active.classList.add('active');
+        active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body></html>
